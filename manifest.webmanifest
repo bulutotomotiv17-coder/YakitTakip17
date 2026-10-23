@@ -3,7 +3,6 @@
   "short_name": "YAKIT TAKİP",
   "description": "Araç yakıt ve KM kaydı",
   "lang": "tr",
-  "id": "./index.html",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
