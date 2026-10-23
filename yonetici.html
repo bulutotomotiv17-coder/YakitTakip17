@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#1a73e8">
+<title>YAKIT TAKİP - Yönetici</title>
+<link rel="manifest" href="yonetici.webmanifest">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="YAKIT TAKİP">
+<style>
+  * { box-sizing: border-box; }
+  :root { --c-rapor: #1a73e8; --c-sofor: #188038; --c-arac: #e8710a; --c-kayit: #9334e6; }
+  body { font-family: system-ui, Arial, sans-serif; margin: 0; background: #e3e8ee; color: #1f2933; }
+  :root { --bg-rapor: #e3e8ee; --bg-sofor: #e3e8ee; --bg-arac: #e3e8ee; --bg-kayit: #e3e8ee; --kart-rapor: #e3e8ee; --kart-sofor: #e3e8ee; --kart-arac: #e3e8ee; --kart-kayit: #e3e8ee; }
+  #t-rapor, #t-sofor, #t-arac, #t-kayit { padding: 1px 0 14px; min-height: 70vh; }
+  #t-rapor { --renk: var(--c-rapor); --kart: var(--kart-rapor); background: var(--bg-rapor); }
+  #t-sofor { --renk: var(--c-sofor); --kart: var(--kart-sofor); background: var(--bg-sofor); }
+  #t-arac { --renk: var(--c-arac); --kart: var(--kart-arac); background: var(--bg-arac); }
+  #t-kayit { --renk: var(--c-kayit); --kart: var(--kart-kayit); background: var(--bg-kayit); }
+  :root { --c-ozet: #1a73e8; --c-excel: #00897b; --kart-ozet: #e3e8ee; --kart-excel: #e3e8ee; }
+  #kartOzet { --renk: var(--c-ozet); --kart: var(--kart-ozet); }
+  #kartExcel { --renk: var(--c-excel); --kart: var(--kart-excel); }
+  :root { --c-sform: #188038; --c-sliste: #00796b; --c-aform: #e8710a; --c-aliste: #d84315;
+          --kart-sform: #e3e8ee; --kart-sliste: #e3e8ee; --kart-aform: #e3e8ee; --kart-aliste: #e3e8ee; }
+  #kartSForm { --renk: var(--c-sform); --kart: var(--kart-sform); }
+  #kartSListe { --renk: var(--c-sliste); --kart: var(--kart-sliste); }
+  #kartAForm { --renk: var(--c-aform); --kart: var(--kart-aform); }
+  #kartAListe { --renk: var(--c-aliste); --kart: var(--kart-aliste); }
+  input[type=color] { width: 100%; height: 42px; padding: 2px; border: 1px solid #cbd2d9; border-radius: 8px; background: #fff; }
+  input[type=text], input[type=password], input[type=date], input[type=month], select { background: #fff; border-color: #b9c3cf; }
+  input[type=text]:focus, input[type=password]:focus, input[type=date]:focus, input[type=month]:focus, select:focus { background: #fff59d; outline: 2px solid #f9a825; outline-offset: 0; }
+  .kart { max-width: 960px; margin: 14px auto; background: var(--kart, #e3e8ee); border-radius: 12px; padding: 18px; box-shadow: 0 1px 4px rgba(0,0,0,.12); border-top: 4px solid var(--renk, #1a73e8); }
+  .dar { max-width: 380px; margin-top: 60px; }
+  #giris { background: #eff2f6; border: 1px solid #aeb9c6; border-top: 5px solid #1a73e8; border-radius: 14px; box-shadow: 0 10px 28px rgba(0,0,0,.42); padding: 24px; }
+  h1 { font-size: 20px; margin: 0 0 12px; } h2 { font-size: 16px; margin: 0 0 10px; color: var(--renk, #1f2933); }
+  label { display: block; font-size: 13px; margin: 10px 0 4px; color: #52606d; }
+  input[type=text], input[type=password], input[type=date], input[type=month], select { width: 100%; padding: 10px; font-size: 15px; border: 1px solid #cbd2d9; border-radius: 8px; background: #fff; }
+  button { padding: 10px 14px; font-size: 15px; background: var(--renk, #1a73e8); color: #fff; border: 0; border-radius: 8px; cursor: pointer; margin-top: 12px; }
+  button.gri { background: #e4e7eb; color: #1f2933; } button.kucuk { padding: 5px 10px; font-size: 13px; margin: 0; }
+  button.kirmizi { background: #d93025; } button:disabled { opacity: .6; }
+  .ust { max-width: 960px; margin: 10px auto 0; padding: 0 6px; display: flex; justify-content: space-between; align-items: center; }
+  .sekmeler { max-width: 960px; margin: 6px auto 0; display: flex; gap: 6px; flex-wrap: wrap; padding: 0 6px; }
+  .sekmeler button { margin: 0; background: #e4e7eb; color: #1f2933; } .sekmeler button[data-t=rapor].aktif { background: var(--c-rapor); color: #fff; }
+  .sekmeler button[data-t=sofor].aktif { background: var(--c-sofor); color: #fff; }
+  .sekmeler button[data-t=arac].aktif { background: var(--c-arac); color: #fff; }
+  .sekmeler button[data-t=kayit].aktif { background: var(--c-kayit); color: #fff; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; } .tablo { overflow-x: auto; }
+  th, td { text-align: left; padding: 7px 6px; border-bottom: 1px solid #e4e7eb; white-space: nowrap; }
+  .satir { display: flex; gap: 12px; flex-wrap: wrap; } .satir > div { flex: 1; min-width: 150px; }
+  .cb { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 4px; } .cb label { margin: 0; color: #1f2933; font-size: 14px; }
+  .gizli { display: none; } .yok { color: #7b8794; padding: 8px 0; }
+  .etiket { padding: 2px 8px; border-radius: 10px; font-size: 12px; } .evet { background: #e6f4ea; color: #137333; } .hayir { background: #fce8e6; color: #c5221f; }
+  #bildirim { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); padding: 12px 18px; border-radius: 8px; font-size: 14px; display: none; max-width: 90%; z-index: 9; }
+  .ok { background: #137333; color: #fff; } .hata { background: #c5221f; color: #fff; }
+  .marka { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 14px; }
+  .marka img { max-height: 64px; max-width: 150px; object-fit: contain; }
+  .marka span { font-size: 18px; font-weight: 700; }
+  .marka.kucuk { justify-content: flex-start; margin: 0; }
+  .marka.kucuk img { max-height: 38px; max-width: 90px; }
+  .marka.kucuk span { font-size: 15px; }
+</style>
+</head>
+<body>
+
+<div class="kart dar" id="giris">
+  <div class="marka" style="display:none"><img class="markaLogo" alt="" style="display:none"><span class="markaAd"></span></div>
+  <h1>🔒 Yönetici Girişi</h1>
+  <label>Şifre</label>
+  <input id="sifre" type="password" autocomplete="off" onkeydown="if(event.key==='Enter')giris()">
+  <button id="btnG" onclick="giris()" style="width:100%">Giriş</button>
+</div>
+
+<div id="panel" class="gizli">
+  <div class="ust"><div style="display:flex;align-items:center;gap:12px">
+      <div class="marka kucuk" style="display:none"><img class="markaLogo" alt="" style="display:none"><span class="markaAd"></span></div>
+      <b>Yönetici Paneli</b>
+    </div><button class="gri kucuk" onclick="cikis()">Çıkış</button></div>
+  <div class="sekmeler" id="sekmeler">
+    <button data-t="rapor" class="aktif">Raporlar</button>
+    <button data-t="sofor">Şoförler</button>
+    <button data-t="arac">Araçlar</button>
+    <button data-t="kayit">Kayıtlar</button>
+    <button onclick="renkPanel()">⚙️ Ayarlar</button>
+  </div>
+  <div class="kart gizli" id="renkKart" style="border-top-color:#9aa5b1">
+    <h2 style="color:#1f2933">E-posta bildirimi</h2>
+    <div class="satir">
+      <div><label>Yönetici e-posta adresi</label><input type="text" id="mEposta" inputmode="email" maxlength="100"></div>
+    </div>
+    <div class="cb" style="margin-top:10px">
+      <label><input type="checkbox" id="mBildirim" checked> Her yakıt girişinde bildirim gönder</label>
+    </div>
+    <button onclick="epostaKaydet(this)">Kaydet</button>
+    <button class="gri" onclick="epostaTest(this)">Test e-postası gönder</button>
+    <hr style="margin:18px 0;border:0;border-top:1px solid #e4e7eb">
+    <h2 style="color:#1f2933">Fiş okuma (yapay zekâ)</h2>
+    <div class="cb"><label><input type="checkbox" id="fAcik"> Şoförler fiş fotoğrafından bilgileri otomatik okutabilsin</label></div>
+    <div class="satir" style="margin-top:10px">
+      <div><label>Gemini API anahtarı <span id="fAnahtarDurum" style="color:#52606d"></span></label><input type="password" id="fAnahtar" autocomplete="off" placeholder="Değiştirmek için yeni anahtarı yapıştırın"></div>
+      <div><label>Model</label><input type="text" id="fModel" maxlength="60" placeholder="gemini-flash-latest"></div>
+      <div><label>Günlük en fazla fiş okuma</label><input type="number" id="fLimit" min="1" max="5000" step="1"></div>
+    </div>
+    <p style="font-size:12.5px;color:#52606d;margin:10px 0 0;line-height:1.5">Anahtarı aistudio.google.com adresinden ücretsiz alabilirsiniz. Okuma açıkken fiş fotoğrafları Google'ın Gemini servisine gönderilir; Google'ın ücretsiz katmanında gönderilen içerik ürünlerini geliştirmek için kullanılabilir. Fişler genelde kişisel veri içermez, yine de bilmeniz için belirtilir. Fotoğraflar her durumda Drive'ınızda "Yakit Raporlari/_fisler" klasörüne kaydedilir. Okunan değerler şoförün onayından geçmeden kaydedilmez.</p>
+    <button onclick="fisKaydet(this)">Kaydet</button>
+    <button class="gri" onclick="fisDene(this)">Bağlantıyı dene</button>
+    <button class="gri" onclick="fisAnahtarSil(this)">Anahtarı sil</button>
+    <hr style="margin:18px 0;border:0;border-top:1px solid #e4e7eb">
+    <h2 style="color:#1f2933">İşletme adı ve logo</h2>
+    <div class="satir">
+      <div><label>İşletme adı</label><input type="text" id="mAd" maxlength="60"></div>
+      <div><label>Logo (png, jpg)</label><input type="file" id="mLogo" accept="image/*" onchange="logoSec()"></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;margin-top:10px">
+      <img id="mOnizleme" alt="" style="display:none;max-height:56px;max-width:140px;object-fit:contain">
+    </div>
+    <button onclick="markaKaydet(this)">Kaydet</button>
+    <button class="gri" onclick="logoKaldir()">Logoyu kaldır</button>
+    <hr style="margin:18px 0;border:0;border-top:1px solid #e4e7eb">
+    <h2 style="color:#1f2933">Bölüm renkleri</h2>
+    <div class="satir">
+      <div><label>Raporlar</label><input type="color" id="cRapor" oninput="renkUygula()"></div>
+      <div><label>Şoförler</label><input type="color" id="cSofor" oninput="renkUygula()"></div>
+      <div><label>Araçlar</label><input type="color" id="cArac" oninput="renkUygula()"></div>
+      <div><label>Kayıtlar</label><input type="color" id="cKayit" oninput="renkUygula()"></div>
+    </div>
+    <label style="margin-top:14px"><b>Raporlar bölümündeki kutular</b></label>
+    <div class="satir">
+      <div><label>Aylık özet - vurgu</label><input type="color" id="oVurgu" oninput="kutuUygula()"></div>
+      <div><label>Aylık özet - kart</label><input type="color" id="oKart" oninput="kutuUygula()"></div>
+      <div><label>Excel indir - vurgu</label><input type="color" id="eVurgu" oninput="kutuUygula()"></div>
+      <div><label>Excel indir - kart</label><input type="color" id="eKart" oninput="kutuUygula()"></div>
+    </div>
+    <label style="margin-top:14px"><b>Şoförler bölümündeki kutular</b></label>
+    <div class="satir">
+      <div><label>Şoför formu - vurgu</label><input type="color" id="fsVurgu" oninput="kutuUygula()"></div>
+      <div><label>Şoför formu - kart</label><input type="color" id="fsKart" oninput="kutuUygula()"></div>
+      <div><label>Şoför listesi - vurgu</label><input type="color" id="lsVurgu" oninput="kutuUygula()"></div>
+      <div><label>Şoför listesi - kart</label><input type="color" id="lsKart" oninput="kutuUygula()"></div>
+    </div>
+    <label style="margin-top:14px"><b>Araçlar bölümündeki kutular</b></label>
+    <div class="satir">
+      <div><label>Araç formu - vurgu</label><input type="color" id="faVurgu" oninput="kutuUygula()"></div>
+      <div><label>Araç formu - kart</label><input type="color" id="faKart" oninput="kutuUygula()"></div>
+      <div><label>Araç listesi - vurgu</label><input type="color" id="laVurgu" oninput="kutuUygula()"></div>
+      <div><label>Araç listesi - kart</label><input type="color" id="laKart" oninput="kutuUygula()"></div>
+    </div>
+    <label style="margin-top:14px"><b>Arka zemin rengi</b> (bölümün geri planı)</label>
+    <div class="satir">
+      <div><label>Raporlar</label><input type="color" id="bRapor" oninput="zeminUygula()"></div>
+      <div><label>Şoförler</label><input type="color" id="bSofor" oninput="zeminUygula()"></div>
+      <div><label>Araçlar</label><input type="color" id="bArac" oninput="zeminUygula()"></div>
+      <div><label>Kayıtlar</label><input type="color" id="bKayit" oninput="zeminUygula()"></div>
+    </div>
+    <label style="margin-top:14px"><b>Kart rengi</b> (kutuların içi)</label>
+    <div class="satir">
+      <div><label>Raporlar</label><input type="color" id="kRapor" oninput="zeminUygula()"></div>
+      <div><label>Şoförler</label><input type="color" id="kSofor" oninput="zeminUygula()"></div>
+      <div><label>Araçlar</label><input type="color" id="kArac" oninput="zeminUygula()"></div>
+      <div><label>Kayıtlar</label><input type="color" id="kKayit" oninput="zeminUygula()"></div>
+    </div>
+    <button class="gri" onclick="renkSifirla()">Varsayılana dön</button>
+  </div>
+
+  <!-- RAPORLAR -->
+  <div id="t-rapor">
+    <div class="kart" id="kartOzet">
+      <h2>Aylık özet (ekranda)</h2>
+      <div class="satir"><div><label>Ay</label><input type="month" id="ozAy"></div></div>
+      <button onclick="ozetGetir(this)">Özeti göster</button>
+      <div class="tablo" style="margin-top:10px"><table id="ozTablo"></table></div>
+    </div>
+    <div class="kart" id="kartExcel">
+      <h2>Excel raporu indir</h2>
+      <div class="satir">
+        <div><label>Araç</label><select id="rPlaka"></select></div>
+        <div><label>Rapor türü</label>
+          <select id="rTur" onchange="turDegisti()">
+            <option value="gun">Günlük</option><option value="ay">Aylık</option><option value="aralik">Tarih aralığı</option>
+          </select></div>
+      </div>
+      <div class="satir">
+        <div id="dBas"><label id="lBas">Tarih</label><input type="date" id="rBas"></div>
+        <div id="dBit" class="gizli"><label>Bitiş tarihi</label><input type="date" id="rBit"></div>
+        <div id="dAy" class="gizli"><label>Ay</label><input type="month" id="rAy"></div>
+      </div>
+      <button onclick="indirIste(this)">Excel indir</button>
+      <div class="yok">"Tüm araçlar" seçilirse araç başına bir Excel dosyası içeren .zip iner. Raporlar ayrıca Drive'da Yakit Raporlari klasörüne de kaydedilir.</div>
+    </div>
+  </div>
+
+  <!-- ŞOFÖRLER -->
+  <div id="t-sofor" class="gizli">
+    <div class="kart" id="kartSForm">
+      <h2 id="sBaslik">Yeni şoför</h2>
+      <div class="satir">
+        <div><label>Ad Soyad</label><input type="text" id="sAd"></div>
+      </div>
+      <label>Yetkili olduğu araçlar</label>
+      <div class="cb" id="sAraclar"></div>
+      <div class="cb" style="margin-top:10px">
+        <label><input type="checkbox" id="sAktif" checked> Yetkisi açık</label>
+        <label id="sPinYLbl" class="gizli"><input type="checkbox" id="sPinY"> PIN'i yenile</label>
+      </div>
+      <button onclick="soforKaydet(this)">Kaydet</button>
+      <button class="gri" onclick="soforYeni()">Yeni / Temizle</button>
+    </div>
+    <div class="kart" id="kartSListe"><h2>Şoförler</h2><div class="tablo"><table id="sTablo"></table></div></div>
+  </div>
+
+  <!-- ARAÇLAR -->
+  <div id="t-arac" class="gizli">
+    <div class="kart" id="kartAForm">
+      <h2 id="aBaslik">Yeni araç</h2>
+      <div class="satir">
+        <div><label>Plaka</label><input type="text" id="aPlaka"></div>
+        <div><label>Marka / Model</label><input type="text" id="aModel"></div>
+      </div>
+      <div class="cb" style="margin-top:10px"><label><input type="checkbox" id="aAktif" checked> Aktif</label></div>
+      <button onclick="aracKaydet(this)">Kaydet</button>
+      <button class="gri" onclick="aracYeni()">Yeni / Temizle</button>
+    </div>
+    <div class="kart" id="kartAListe"><h2>Araçlar</h2><div class="tablo"><table id="aTablo"></table></div></div>
+  </div>
+
+  <!-- KAYITLAR -->
+  <div id="t-kayit" class="gizli">
+    <div class="kart">
+      <h2>Son kayıtlar (en fazla 60)</h2>
+      <div class="satir"><div><label>Araç</label><select id="kPlaka" onchange="kayitYukle()"></select></div></div>
+      <div class="tablo" style="margin-top:10px"><table id="kTablo"></table></div>
+    </div>
+  </div>
+</div>
+
+<div id="bildirim"></div>
+
+<script src="config.js"></script>
+<script src="api.js"></script>
+<script>
+  /* ---- e-posta bildirimi ---- */
+  function epostaKaydet(btn) {
+    cagir('epostaKaydet', [T, { eposta: $('mEposta').value, bildirim: $('mBildirim').checked }], function () {
+      bildir('E-posta ayarları kaydedildi.', true);
+    }, btn);
+  }
+  function epostaTest(btn) {
+    cagir('epostaTest', [T], function () {
+      bildir('Test e-postası gönderildi, gelen kutunuzu kontrol edin.', true);
+    }, btn);
+  }
+
+  /* ---- fiş okuma ayarları ---- */
+  function fisCiz(f) {
+    if (!f) return;
+    $('fAcik').checked = !!f.acik; $('fModel').value = f.model || ''; $('fLimit').value = f.limit || 100; $('fAnahtar').value = '';
+    $('fAnahtarDurum').textContent = f.anahtarVar ? '(kayıtlı)' : '(kayıtlı değil)';
+  }
+  function fisKaydet(btn, sil) {
+    cagir('fisAyarKaydet', [T, { acik: $('fAcik').checked, model: $('fModel').value, limit: $('fLimit').value, anahtar: $('fAnahtar').value, anahtarSil: !!sil }], function (f) {
+      fisCiz(f); bildir(sil ? 'Anahtar silindi.' : 'Fiş okuma ayarları kaydedildi.', true);
+    }, btn);
+  }
+  function fisAnahtarSil(btn) { if (confirm('Kayıtlı Gemini anahtarı silinsin mi? Fiş okuma çalışmaz.')) fisKaydet(btn, true); }
+  function fisDene(btn) {
+    cagir('fisAyarDene', [T], function (r) { bildir(r.mesaj, true); }, btn);
+  }
+
+  /* ---- işletme adı ve logo ---- */
+  var LOGO_YENI = null, LOGO_KALDIR = false, LOGO_IKON = null;
+  var IKON = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAYAAABS3GwHAAAVjElEQVR42u2deZBldXXHv+f87n17LzPds3T3LFBBJiyyzRAIIqghoMaYmDgTizFF1GJioSAwoNFSe7qsiorgoAjqkIQkuE5HBWOpLGYgKQkqFoI4CigSYLpn6Z6eXt5y372/38kf972eZmCGXmfecj5Vj6Vrpvv1fef7O99zfhthQRDCdjD6+4H+Dbb61WWbJWv8/aeRw2mAeZWLiucRsQ/IiSDTCokEIILS4BAAZwV4nMhEYO9RseEzxPyI2PJjg5/tGXpRLPU+YLDldRZEshDvZP4DfwNNBv2Kjwz1uIgvgshbIHIW4I4nL03EDLERAIHYMiBO46LJREBeMv5P9uLosQFgoz1gfgzk3eNgf7D7hs5fT/6V7WKwHm4+hUALEfgn9z6RGCl1vwki7ybn3sDJlhxEIFEp/iVFHAgCqfx8Ipp/MSo1j1RGPUI1oJk4QeSnAPbhigccGf4JxPvXMCjdvffzy/cAAHp3ePOVEeYedL3C6CNXDfwDheXvBPE17KVOhQhcWABcVMkIRCCwfvLKEUQhILh4eCSP/AzIJODCwh4R+ZINwi9OCmG9GPQfdBtHXwC9Ozz0vT7Cpi/73W1//bcgvob99KkSBZCwaCvfndXXK7OVA0QEECGTMJRogSvn9wjoS84N37bnphP2xgMwBJhdNphdYPb2MrAF6CPXs3nwHDGpz7GfOUeiIiQs2HikJx3plfnNDIAl43uUbIELCwMQt3ngho5vxNlgu5nacFk4AUz5Qd3X7e0FeR8l43tSnogAsAa+cnSEkPDgp+Bs8A2a2P3+gVtPHsZ2MVMbMPMvgF7x0EfRqquf7Yr83B2cbL3EFfcDIhZERj8d5egJwQlAjtOLjIsKT0tQfNfgzT0/xqZHfGxbF86/ACrBv/yq587mVMvd5CW7pDQagWDU4yvHMCNE5Kc9AUVii1cM3rj89rg4hptOXTA9u7JdDPoo6t48uIFTuXuIuEtKByIQeRr8yjGFyJOwaGEDj016W/d1e3vRTxa9IEBo7gLoFQ8byHZds+tySrZ9k8QtknLegSqzF4py7EVg4KxIVLSc6dzSvXnPNvSRQy/MK4mAp2V7rn7+7ZxZtE2CiUhs6MCsha5SayIgQIyb2FvmbOfly68d2Io+imIRzKYGqExwLbvmuT8yfusPIVEbbAjt8ii1XhQAbCmR8VxpbNPg1p7bj9QdosMHP+T4q/YsDVLe40T+UinndeRX6kUDAmKhRI5dfujiwc+vvu9ws8YvH9CnxMIIEnQneZmlEuYjDX6lruyQOEhUEkpm7zz+qt3L0A+HXuFXFkDvDg8byHZfu+vjnFr0p3GrUwtepe5EwLCBIz+zLEjQnQBJdWA/vAWq+P7ua184E37uJ7BlhrNcWa2pKPVohyLOLPZcYd/7Bz674tZDrdCUDBC3i0648qmkkPlnIuPDWWjwK3WOcaUxBz/zyRXXPHcCtr/YCh0UwHYw+sgVErl3mPTiM6U8EenyBqUh6gEXOfayLZb9j4FIsPOg86HJ0b8XdML+p/18ovUx9lInSlgUbXkqjWKEABIYP0RQOH3gcz1PoReEPnJxgK+fMvqn2tZIWHAa/Eoj5QGIFfYzSTH0EeBgFiCAAHG04trnU5YTj+rorzRuFmCB8UJnS2ftvql7J3qFGRf+lwcicexfxMnWNRIWdfRXGjULOE5kkwTzHgDA4M8NY+k+AQAR+XtARLemKw2MceUJgbhL11y/rwXb1kWM/g32+Kt2LyP2LpRygSC6aV1p1BxAhCgQTrUtn3ByPoC4Hxr47o2cbMvBRVb7/kqDq8ARGTi4twOT8wDen8edIn08SuPbIAkLIMhFS654IsdLrtiTg9h1Ehah9kdpBhskNhCQ351Idp7KJm1PAnsr4i+q/VGaAXGUSHnC9Fpm8FrykqZy3ISiNIkGBBB3DkNwEthMPZ9RURo8+EGwESCyhgVyNmwI6AyA0jx1AIstA8xrmAS62UVpyjQAkM9grBFbBkgzgNJ8ImCQ1xpfTqEdIKX54PhaIkVpVgHoyK80MU1VADe81AXay1YBHJLiKH5ZB4S2sX9XQ4BX2cVt9c5BFYBhIB8ISqEgl2J0ZBszBQjidYzjJcHwhINnCK2peGZT5/ebUABVq7M/77BudQIbzk7jvBN8HNfhNaQNkso/9o5bPPJsiLseLeHeXwVI+oSkp9ngiLHSvXm3NFrwOwcEkeAf3pzD1Rfl4Dfh4S53PVrC9f1jGMk7ZJKkImimDFAKBbdc2oaN56YhAkQurgOaoAaetDx/eWYKx3cavP2LIxgrChIe4NQOvbRGbCg1MzCSd/joW1qw8dw0yjY2xx5XBNDgL6a47jEcF/ynr/Rxx7vaETnR7lCjC4AJmAgEZx+XwFV/koV1gM/Nu8nNN7EIzn9VApedl8GBgsDT7U6NLYBiWXDpOWl4ptIZafIpPqbYEl12XhopH7CaBhpXAJEDWtOMPz4h0Xjebg4CAAEnLvPwB0sMgrDyNaWxBEAUC6AjR1jdYSa/1uxQJQOkE4TjOz2UI9Hn0shFsIhO/BwO7QA1gQAURQWgKDNAt0NOtVCT/6hdT6+oABakdnASTyDV8sRB1cdrJ0cFMK/BTxQvJS6GgiAUMNXeGTFEQGuKXvSeFRXAvAT/njGHT/9gAjt+E6AU1markAg4Y2UC112SxZmrfDjRTKACmGPwA8DecYc33TyMnQMRWtNU06dDfvcXRdz7qxK+/b7FeO2rErCuYtsUFcBs/LRh4DM/nMDOgQjd7RwvnqthOlsYBwqCj31nDPdt7tS1PfNAUz5CkYO7xe7fGaA1HQd/dSKtVl/lCMglCU8MRHhiVwgi3eyiApgDoUPNev4jYV288lVRCzS3whL1W0iaGb7v6j6Bo1EzuDpakqJt0CZ53wcKgpF8fAuQXahah+I3lvQJaT9eoKgCUI5tlqtkinefn8GSFkahLAuW9apt5Sd3R3h6T4TFWa75QUYF0AQ2DwDWr0th/brUUfmZQxMOt/93AVvvm4BvattjqgCahGq36GgU/J05xoffnENHjrH5m6NYlOWa7VZpJ7lJqBbA1ZPyFvLlKidxvOe1Gaw7LoF8IDXbbFABKPMfVJVgNwS87cwUimUVgNKktccZq3wkfarZHWkqAGVhi8wajzAtgpuEhZicqh7GdSRqfZ5FBdBMvlyXT6sAmo3q0elP7IqwP+/iQ8PmOCwTAZEFFmcZp/Z4kz9DBaDUngAqs7Mf+fYYvv94gPbs3E+KNgwcyAvefFoS371ycV3vUFMBNAmZBKElRcgl50cA1sbfUy2QUjdF8NTXnCzQPH2fmqiNNDSUpm4O6CNQVACKogJQFBWAoqgAlNpHt8SrAOZM9XK5enzfRpc1qADmEkBWgJYk4YyVCRQCqYu7hA0DZQt0tzFO6fEh0OMRVQCzFUFFCB98Yw4pPz41gY/SjqlZvTi+/Ht4wuG6S3JoTRGc00Ny50rTzgRXb1A8faWHb12xGB/9zjh2DoaIbG0GFQHobjf45F9lcdlrMgePc1dUAHOxQk6AC05M4MEPduDR50PkA4Gh2isymYDTVvjIJmnyvSsqgHkJrOpR42et8mv+/eqJ0CqAhbFDqP1bJpk0+FUAC1wU666pJhv89BEoKgBFUQEoigpAUVQAiqICUBQVgKKoABRFBaAoKgBFUQEoigpAUVQAiqICUBQVgKKoABRFBaAoKgBFUQEoigpAUVQAiqICUBQVgKKoABRFBaAoKgBFUQEoigpAUVQAiqICUBQVgKKoAJQaR0QFoDQpREDCe+XbRAi1fZWrCkCZMR4D+cDhpK74giF3hEwQOSBflpq92kkFoMwIw8BIQXDicg9vPSN12Mu6q9fQntLj4eKTkxgadzUpAhWAMqPgHy8Kzjk+gR3Xd+K0FR4gLy+A6n1rHVnGd963GO99XRYj+drLBCoAZXqBQkApBHoWMb66qR1LWxj2FW6qp0qhzATcuKEVf3ZaEgcKtSUCFYAybUIruO2d7ejIMiI7vStbacoVtLdsbENPOyMIa+eibxWAMi3rM1YUXHxKEhecmIB1gGdmlj2sAEtyjMsvyGIicDAqAKWesE6wfm06Hs1nGWgiwNvOSqE9wwidCkCpm+AHcinGmi4v7uvP4ntUi+LlbQYrFjHCqDbmB1QAyisGbuSAjixh1WJzMJhn8X1EgLQPHNfhoRxJTdQBKgBl2gE8XyM2axdIqRdEAEPAWEmwdzw27jIHEZUjYPeog2cIogJQ6gGPgZG84Ok9EQRHXvpwOJzE8wIjBYdnhyMkvNpYTKcCUKYxdMf/+uETAejg/85YAACw4zcBhsYdfKMCUOoEJ0BLmtD/SBG/H7IwHHeGZmKjCPHfuW1HHgmPamYptQpAmVYAewwUyoIrvzYKqfj56VghQdxFMgx84nvjePS5CNkkzcpGqQCUY4Z1QEuK8MCTAa7fPgaudIUiFwtBDgl6kUqWEMA3wFcfLuJz9+XRlqEZZQ8VgFJTIlicZXz5wQL+5ssj2DPm4HEsBKpYpWqxSxSP+pEDPn7XON7/tVFkkrW3M8bTj1WZqQgWZQk/+GWA178whHe9JoO3npHCysUGmUQc4JEDBg9YPPhUGdsezOPR50K0ZXjSTqkAlLoXQXuGMDwh2PLdcdx8fx7d7QbHdcYzxfvG4lbn8IQg4QGLslxTtkcFoMyLCHwP6PDj4H52KMJTe6I4qDjeL7woSwdrAagAlAZDJF7mDABJn5BOHPx6rQe+CkBZMDHUEw3XBRKNRX0uzSoAJtTMTqOaS/Xa8G5MAVTXlHsMjAeCoYm5rVhsNIiA0AJ7xxz8yuhAOkjUvwBMZQImtPELAuw+4PDwM2UAqJmp9mOJc/Gk1P8NW/xyVwhj4uXIoY2/bjQr1KcADAOjRcFEIFiUIXRkCYtyhOVtjB/tDGBdbR/Hd7R9/72/KiFhCEtbCIuz8fMKLbA/70DU3BmBujfvrquxkikO/otPSWLTBRmsXe3DMMUfJIDICdozrAKYwoGCqwR5/FBEgN/ti3Dn/xbxlYcL8A3BcGMcdjvj2qjeRv4DBcGmCzO4cX3r4TStEX8I7ZmXJvq1q32sXe3j7ON8XPX1UaT95nxuXE/BP1YUXHxyEjeub4WVeM1JddJl6kt5qRU69Bk5B5QtsPHcND70phxGCq4pO0V18ytXA/t9b8hOfqAeY9LDTn0pL82Jhz4j5vj5OQHec34GPYsMgqj5nl9dCIAoHq262hhnrvLjDoYG+rzUUwDQkWOcvsJHsSxNVzvVVdLTEX5hn63WAHVkhZT5rxNUAHUwSunkzQI1GTQD1Pao7zMwNO7wzFA0ufVOmZ9sWigLfrs3QsKnpnuuXC99c8NAPgD+7cfFyeO21Q7NzfKUbVwIf/+XAX6zO0Lab75n6kGcBbGpdRcYOaA9S/j3hwpYu9rHxnPTADQTzHrkIyDpAY89H+LD3xpDLslN+Sw9ETzOfvJMCYsORDVviXyP8IGvj+L5EYvLzkujq81oNM+CiUDwvcdK+Pjd49ifd8gkCc4133Og7s2Dj5CXXlsvAqi260YKgp52xqt7fDDrAoiZWB8C8Mw+iyd3x4dU+aZJMykRPHH0GLG3FlQfnbCqR+3IEsaKgvt/HRz8ZJVpfOjxs0r48fEmTdlQEBHykiRR6XceEf26Hn+H6j1VbZ6O/bPB1cmm9QVLhOwRhH7rWeN+7kUlgYDrzUfU60Zs5ZhnQQEbCPinTCV5QiTaRyZBEG0sKs0x/iMqiRg8xLtv6d4nQo+TnwYITp+O0vD+3yRIbDjMXvgzrhTD94A9QLSUVBre/jjyMxDQQwOfWrG/IgC62wXjIYi0qa40uv0BiMGM/wAgjF7hXTcs+a3Y8i/IzwIQq09JaVT7A/bYBaP5RJC5F4gXwzGIhIn+iYxPusBGaWAsJ3MkLvrP33++ZQ8u3OExtsACQk7st20wNgyTYO0GKQ0Kiw3BQtsAAEtfJwwiwXbw4Gd7hiD2C5xsIUC0G6Q0mv+xlGxlV554YNfWrh3oFUY/2XjtzwY4iBCVMrfY0qhmAaUBIUAsmKgPALAznvatLH4jQT944Na2YdjwC5xsJS2GlQYqfi0lWowrTzyw66auB6qj/xQBAFgPh15hKuduccHoXnhJA1ErpDTC4B+P50awZero/2IBEAlOAQ3c2jaMMLiSvDQBpAJQ6nz0dxGnFhlXHr/tha3dD2K9mOroXzFGh7BdDDaQ7bp213aT7lzvisMRiPUmGaUeg9+Rn2Gx4TMt+4fOeHLlH+axBQIieWkGOMQKGbHvdeXxZ8jPGIjTTKDUm+8XsOcEYikobXzyX04an3Q6U+CX8UsCAC9sXbWfysVLBYJ47bR2hZS6wnK6w5PyxHW7bln5MHrFQ99LLf3hdwBUrdA1z1/OydZtEpYiwBk9m02pg9E/olSbJ8Ho7QM3dW2qBH/0cn/08HuAN5DFpkf8wa0rb3fBRB9nl3gQCnXvoVLjvj/kTKfngvH7K8HP6MNhW/pH3gS/bW2EXvEGt3b3ufy+2zm7JAGQVTuk1GjwR5zp9F0w+jMqhe9Arxyc55qVAECCPlgIMHDTsk2uMHQz+VkDYtE5AqWWPE9se9o9F0zc403kLxm4dcUwALyc759eDfDiH0BYD0Y/2a7rdl/Ofm4bbACJgsqhWopyzEZ9B2LiTCe5wvDtAzct2wQAsfV55XmsmRW0lWKi69pdl5BJ3UF+uktKoxEAA9LiWDkGxa6f9kRcRC66fteNS2+etD1905vEnXnQVrpDq65+tivyc3dwIneJC8YAZ6PKjjIVgrLQgW8BEKcXs4SFp1y58O7Bm3t+XCl45Uief+4CmCICAOi6buhKMt4n2Eu3udIIKmeNsgpBWYDItxAQJVsYYiHO3VI88LuPjWxbN4reHR76Xh/N9DvSHFRI2AJCH7nuD7ywhlKZD4lzGzmRTbjSKCCi1kiZrwLXAVQJfAcRex9c9OmBzyz50Uz8/vwK4GWywYrNg6daTlxLkI2caElIeQJiAwewA8Ag6PUWyvSCHnAQAGwMJ1sgNoTY6D4h/szgDe33AUC8sA1uJpZn/gVQVeApoINCGD5VDP2dOPsO8jM9xAYSFiE2iNMYKM4gdXAYr3JU4l0ACAgCAZNJUHxOFcOF+XGQuUts9JXBGzvvnYy3nf2E/g1z3rMyv/akVxg7QdXlpouvHGpNJfhCsPwFIG+A2OPIz8Yb7yWCRGXozLJCJgGwB5ABbAni3B4QPwSiu9lL3v/CP2Z3TdruDf08H4G/MAKYKgSAp66/WLZ5MGv8zGliowsYchaIThAbvhogX0XQzNFPIjBPkdjnBPgpBP9DidQjA59qG578M+slnmuaso5/vvh/6Hsw2c9vpC8AAAAASUVORK5CYII=';
+  function markaCiz(m) {
+    m = m || {};
+    var ad = m.ad || 'YAKIT TAKİP', logo = m.logo || IKON;
+    Array.prototype.forEach.call(document.querySelectorAll('.markaAd'), function (x) { x.textContent = ad; });
+    Array.prototype.forEach.call(document.querySelectorAll('.markaLogo'), function (i) { i.src = logo; i.style.display = ''; });
+    Array.prototype.forEach.call(document.querySelectorAll('.marka'), function (b) { b.style.display = 'flex'; });
+    var adK = document.getElementById('mAd'), on = document.getElementById('mOnizleme');
+    if (adK) adK.value = m.ad || '';
+    if (on) { if (m.logo) { on.src = m.logo; on.style.display = ''; } else { on.style.display = 'none'; } }
+  }
+  markaCiz(null); // gömülü simge ve varsayılan ad hemen görünsün
+  google.script.run.withSuccessHandler(markaCiz).marka();
+
+  function logoSec() {
+    var f = $('mLogo').files[0]; if (!f) return;
+    var rd = new FileReader();
+    rd.onload = function () {
+      var img = new Image();
+      img.onload = function () {
+        var oran = Math.min(1, 300 / Math.max(img.width, img.height));
+        var c = document.createElement('canvas');
+        c.width = Math.round(img.width * oran); c.height = Math.round(img.height * oran);
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+        LOGO_YENI = c.toDataURL('image/png'); LOGO_KALDIR = false;
+        // Kısayol simgesi: 192x192 kare, beyaz zemin, logo ortada
+        var ic = document.createElement('canvas'); ic.width = 192; ic.height = 192;
+        var cx = ic.getContext('2d'); cx.fillStyle = '#ffffff'; cx.fillRect(0, 0, 192, 192);
+        var o2 = Math.min(160 / img.width, 160 / img.height), w2 = img.width * o2, h2 = img.height * o2;
+        cx.drawImage(img, (192 - w2) / 2, (192 - h2) / 2, w2, h2);
+        LOGO_IKON = ic.toDataURL('image/png');
+        $('mOnizleme').src = LOGO_YENI; $('mOnizleme').style.display = '';
+      };
+      img.onerror = function () { bildir('Bu görsel okunamadı, başka bir dosya deneyin.', false); };
+      img.src = rd.result;
+    };
+    rd.readAsDataURL(f);
+  }
+  function logoKaldir() {
+    LOGO_YENI = null; LOGO_KALDIR = true; LOGO_IKON = null;
+    $('mOnizleme').style.display = 'none'; $('mLogo').value = '';
+  }
+  function markaKaydet(btn) {
+    cagir('markaKaydet', [T, { ad: $('mAd').value, logo: LOGO_YENI, ikon: LOGO_IKON, kaldir: LOGO_KALDIR }], function (m) {
+      LOGO_YENI = null; LOGO_KALDIR = false; LOGO_IKON = null; $('mLogo').value = '';
+      markaCiz(m); bildir('İşletme bilgileri kaydedildi.', true);
+    }, btn);
+  }
+
+  var T = '', D = { araclar: [], soforler: [] }, KAYITLAR = [];
+  function $(id) { return document.getElementById(id); }
+  function e(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function bildir(t, ok) {
+    var b = $('bildirim'); b.textContent = t; b.className = ok ? 'ok' : 'hata'; b.style.display = 'block';
+    clearTimeout(bildir.z); bildir.z = setTimeout(function () { b.style.display = 'none'; }, ok ? 3500 : 6000);
+  }
+  function hata(er) {
+    var m = String(er && er.message || er).replace(/^Error: /, '');
+    if (/Oturum/.test(m)) { cikis(m); return; }
+    bildir(m, false);
+  }
+  function cagir(fn, args, ok, btn) {
+    if (btn) btn.disabled = true;
+    var r = google.script.run
+      .withSuccessHandler(function (x) { if (btn) btn.disabled = false; if (ok) ok(x); })
+      .withFailureHandler(function (er) { if (btn) btn.disabled = false; hata(er); });
+    r[fn].apply(r, args);
+  }
+  function bugun() { var d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0, 10); }
+
+  /* ---- giriş / çıkış ---- */
+  function giris() {
+    cagir('yoneticiGiris', [$('sifre').value], function (t) {
+      T = t; $('sifre').value = '';
+      $('giris').className = 'gizli'; $('panel').className = '';
+      $('ozAy').value = $('rAy').value = bugun().slice(0, 7);
+      $('rBas').value = $('rBit').value = bugun();
+      yukle(); ozetGetir();
+    }, $('btnG'));
+  }
+  function cikis(m) {
+    T = ''; $('panel').className = 'gizli'; $('giris').className = 'kart dar';
+    if (m) bildir(m, false);
+  }
+
+  /* ---- sekmeler ---- */
+  $('sekmeler').addEventListener('click', function (ev) {
+    var t = ev.target.getAttribute('data-t'); if (!t) return;
+    ['rapor', 'sofor', 'arac', 'kayit'].forEach(function (x) { $('t-' + x).className = x === t ? '' : 'gizli'; });
+    Array.prototype.forEach.call($('sekmeler').children, function (b) { b.className = b.getAttribute('data-t') === t ? 'aktif' : ''; });
+    if (t === 'kayit') kayitYukle();
+  });
+
+  /* ---- veri ---- */
+  function yukle() {
+    cagir('adminVeri', [T], function (d) {
+      D = d; ciz();
+      if (d.ayar) { $('mEposta').value = d.ayar.eposta || ''; $('mBildirim').checked = d.ayar.bildirim; }
+      fisCiz(d.fis);
+    });
+  }
+  function etiket(a) { return '<span class="etiket ' + (a ? 'evet' : 'hayir') + '">' + (a ? 'Aktif' : 'Kapalı') + '</span>'; }
+
+  function ciz() {
+    var opt = D.araclar.map(function (a) { return '<option value="' + e(a.plaka) + '">' + e(a.plaka) + (a.model ? ' - ' + e(a.model) : '') + '</option>'; }).join('');
+    var rp = $('rPlaka').value, kp = $('kPlaka').value;
+    $('rPlaka').innerHTML = '<option value="">Tüm araçlar</option>' + opt; $('rPlaka').value = rp;
+    $('kPlaka').innerHTML = '<option value="">Tüm araçlar</option>' + opt; $('kPlaka').value = kp;
+
+    $('sTablo').innerHTML = '<tr><th>Ad Soyad</th><th>PIN</th><th>Araçlar</th><th>Ort. L/100 km</th><th>Yol (km)</th><th>Yetki</th><th></th></tr>' +
+      (D.soforler.length ? D.soforler.map(function (s, i) {
+        return '<tr><td>' + e(s.ad) + '</td><td><b>' + e(s.pin) + '</b></td><td>' + e(s.plaka) + '</td><td><b>' + (s.tuketim ? say(s.tuketim.ort, 2) : '-') + '</b></td><td>' + (s.tuketim ? say(s.tuketim.yol, 0) : '-') + '</td><td>' + etiket(s.aktif) +
+          '</td><td><button class="kucuk" onclick="soforDuzenle(' + i + ')">Düzenle</button></td></tr>';
+      }).join('') : '<tr><td colspan="7" class="yok">Henüz şoför yok.</td></tr>');
+
+    $('aTablo').innerHTML = '<tr><th>Plaka</th><th>Marka / Model</th><th>Durum</th><th>Ort. L/100 km</th><th>Son dolum L/100 km</th><th>Toplam yol (km)</th><th></th></tr>' +
+      (D.araclar.length ? D.araclar.map(function (a, i) {
+        var t = a.tuketim;
+        return '<tr><td>' + e(a.plaka) + '</td><td>' + e(a.model) + '</td><td>' + etiket(a.aktif) +
+          '</td><td><b>' + (t ? say(t.ort, 2) : '-') + '</b></td><td>' + (t ? say(t.son, 2) : '-') + '</td><td>' + (t ? say(t.yol, 0) : '-') +
+          '</td><td><button class="kucuk" onclick="aracDuzenle(' + i + ')">Düzenle</button></td></tr>';
+      }).join('') : '<tr><td colspan="7" class="yok">Henüz araç yok.</td></tr>');
+    soforAraclariCiz([]);
+  }
+
+  /* ---- araçlar ---- */
+  var aSatir = 0;
+  function aracYeni() { aSatir = 0; $('aBaslik').textContent = 'Yeni araç'; $('aPlaka').value = ''; $('aPlaka').readOnly = false; $('aModel').value = ''; $('aAktif').checked = true; }
+  function aracDuzenle(i) {
+    var a = D.araclar[i]; aSatir = a.satir; $('aBaslik').textContent = 'Araç düzenle';
+    $('aPlaka').value = a.plaka; $('aPlaka').readOnly = true; $('aModel').value = a.model; $('aAktif').checked = a.aktif;
+    window.scrollTo(0, 0);
+  }
+  function aracKaydet(btn) {
+    cagir('aracKaydet', [T, { satir: aSatir, plaka: $('aPlaka').value, model: $('aModel').value, aktif: $('aAktif').checked }], function () {
+      bildir('Araç kaydedildi.', true); aracYeni(); yukle();
+    }, btn);
+  }
+
+  /* ---- şoförler ---- */
+  var sSatir = 0;
+  function soforAraclariCiz(secili) {
+    $('sAraclar').innerHTML = D.araclar.length ? D.araclar.map(function (a) {
+      return '<label><input type="checkbox" value="' + e(a.plaka) + '"' + (secili.indexOf(a.plaka) >= 0 ? ' checked' : '') + '> ' + e(a.plaka) + (a.aktif ? '' : ' (kapalı)') + '</label>';
+    }).join('') : '<span class="yok">Önce Araçlar sekmesinden araç ekleyin.</span>';
+  }
+  function soforYeni() {
+    sSatir = 0; $('sBaslik').textContent = 'Yeni şoför'; $('sAd').value = ''; $('sAktif').checked = true;
+    $('sPinY').checked = false; $('sPinYLbl').className = 'gizli'; soforAraclariCiz([]);
+  }
+  function soforDuzenle(i) {
+    var s = D.soforler[i]; sSatir = s.satir; $('sBaslik').textContent = 'Şoför düzenle';
+    $('sAd').value = s.ad; $('sAktif').checked = s.aktif; $('sPinY').checked = false; $('sPinYLbl').className = '';
+    soforAraclariCiz(s.plaka.split(',').map(function (x) { return x.trim().toUpperCase(); }));
+    window.scrollTo(0, 0);
+  }
+  function soforKaydet(btn) {
+    var pl = Array.prototype.map.call($('sAraclar').querySelectorAll('input:checked'), function (c) { return c.value; });
+    cagir('soforKaydet', [T, { satir: sSatir, ad: $('sAd').value, plakalar: pl, aktif: $('sAktif').checked, pinYenile: $('sPinY').checked }], function (r) {
+      bildir('Kaydedildi. PIN: ' + r.pin, true); soforYeni(); yukle();
+    }, btn);
+  }
+
+  /* ---- raporlar ---- */
+  function turDegisti() {
+    var t = $('rTur').value;
+    $('dBas').className = t === 'ay' ? 'gizli' : ''; $('dBit').className = t === 'aralik' ? '' : 'gizli'; $('dAy').className = t === 'ay' ? '' : 'gizli';
+    $('lBas').textContent = t === 'aralik' ? 'Başlangıç tarihi' : 'Tarih';
+  }
+  function say(n, d) { return n == null ? '-' : Number(n).toLocaleString('tr-TR', { minimumFractionDigits: d, maximumFractionDigits: d }); }
+  function ozetGetir(btn) {
+    cagir('ozet', [T, $('ozAy').value], function (r) {
+      $('ozTablo').innerHTML = '<tr><th>Plaka</th><th>Dolum</th><th>Yol (km)</th><th>Litre</th><th>Tutar (TL)</th><th>L/100 km</th></tr>' +
+        (r.length ? r.map(function (x) {
+          return '<tr><td>' + e(x.plaka) + '</td><td>' + x.adet + '</td><td>' + say(x.yol, 0) + '</td><td>' + say(x.litre, 2) + '</td><td>' + say(x.tutar, 2) + '</td><td>' + say(x.tuketim, 2) + '</td></tr>';
+        }).join('') : '<tr><td colspan="6" class="yok">Bu ayda kayıt yok.</td></tr>');
+    }, btn);
+  }
+  function indirIste(btn) {
+    var o = { plaka: $('rPlaka').value, tur: $('rTur').value, bas: $('rBas').value, bit: $('rBit').value, ay: $('rAy').value };
+    bildir('Rapor hazırlanıyor, bekleyin...', true);
+    cagir('raporIndir', [T, o], function (r) {
+      var bin = atob(r.b64), arr = new Uint8Array(bin.length);
+      for (var i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([arr], { type: r.mime })); a.download = r.ad;
+      document.body.appendChild(a); a.click(); a.remove();
+      bildir(r.adet + ' araç için rapor indirildi.', true);
+    }, btn);
+  }
+
+  /* ---- renkler ---- */
+  var RENK_VARSAYILAN = { rapor: '#1a73e8', sofor: '#188038', arac: '#e8710a', kayit: '#9334e6' };
+  var RENK_ID = { rapor: 'cRapor', sofor: 'cSofor', arac: 'cArac', kayit: 'cKayit' };
+  var RENKLER = JSON.parse(JSON.stringify(RENK_VARSAYILAN));
+  function renkPanel() { $('renkKart').className = $('renkKart').className === 'kart' ? 'kart gizli' : 'kart'; }
+  function renkBas() {
+    Object.keys(RENK_ID).forEach(function (k) {
+      $(RENK_ID[k]).value = RENKLER[k];
+      document.documentElement.style.setProperty('--c-' + k, RENKLER[k]);
+    });
+  }
+  function renkUygula() {
+    Object.keys(RENK_ID).forEach(function (k) { RENKLER[k] = $(RENK_ID[k]).value; });
+    renkBas();
+    try { localStorage.setItem('yakitRenkler', JSON.stringify(RENKLER)); } catch (x) {}
+  }
+  function renkSifirla() {
+    RENKLER = JSON.parse(JSON.stringify(RENK_VARSAYILAN)); renkBas(); zeminSifirla();
+    try { localStorage.removeItem('yakitRenkler'); } catch (x) {}
+  }
+  try { var kayitliRenk = JSON.parse(localStorage.getItem('yakitRenkler') || 'null'); if (kayitliRenk) RENKLER = kayitliRenk; } catch (x) {}
+  renkBas();
+
+  /* ---- arka zemin ve kart renkleri ---- */
+  var BOLUMLER = ['rapor', 'sofor', 'arac', 'kayit'];
+  var ZEMIN_VARSAYILAN = {
+    bg: { rapor: '#e3e8ee', sofor: '#e3e8ee', arac: '#e3e8ee', kayit: '#e3e8ee' },
+    kart: { rapor: '#e3e8ee', sofor: '#e3e8ee', arac: '#e3e8ee', kayit: '#e3e8ee' }
+  };
+  var ZEMIN_ID = {
+    bg: { rapor: 'bRapor', sofor: 'bSofor', arac: 'bArac', kayit: 'bKayit' },
+    kart: { rapor: 'kRapor', sofor: 'kSofor', arac: 'kArac', kayit: 'kKayit' }
+  };
+  var ZEMIN = JSON.parse(JSON.stringify(ZEMIN_VARSAYILAN));
+  function zeminBas() {
+    BOLUMLER.forEach(function (k) {
+      $(ZEMIN_ID.bg[k]).value = ZEMIN.bg[k];
+      $(ZEMIN_ID.kart[k]).value = ZEMIN.kart[k];
+      document.documentElement.style.setProperty('--bg-' + k, ZEMIN.bg[k]);
+      document.documentElement.style.setProperty('--kart-' + k, ZEMIN.kart[k]);
+    });
+  }
+  function zeminUygula() {
+    BOLUMLER.forEach(function (k) {
+      ZEMIN.bg[k] = $(ZEMIN_ID.bg[k]).value;
+      ZEMIN.kart[k] = $(ZEMIN_ID.kart[k]).value;
+    });
+    zeminBas();
+    try { localStorage.setItem('yakitZemin', JSON.stringify(ZEMIN)); } catch (x) {}
+  }
+  function zeminSifirla() {
+    ZEMIN = JSON.parse(JSON.stringify(ZEMIN_VARSAYILAN)); zeminBas(); kutuSifirla();
+    try { localStorage.removeItem('yakitZemin'); } catch (x) {}
+  }
+  try { var kz = JSON.parse(localStorage.getItem('yakitZemin') || 'null'); if (kz && kz.bg && kz.kart) ZEMIN = kz; } catch (x) {}
+  zeminBas();
+
+  /* ---- rapor kutularının renkleri ---- */
+  var KUTU_VARSAYILAN = {
+    ozetRenk: '#1a73e8', ozetKart: '#e3e8ee', excelRenk: '#00897b', excelKart: '#e3e8ee',
+    sformRenk: '#188038', sformKart: '#e3e8ee', slisteRenk: '#00796b', slisteKart: '#e3e8ee',
+    aformRenk: '#e8710a', aformKart: '#e3e8ee', alisteRenk: '#d84315', alisteKart: '#e3e8ee'
+  };
+  var KUTU_ID = {
+    ozetRenk: 'oVurgu', ozetKart: 'oKart', excelRenk: 'eVurgu', excelKart: 'eKart',
+    sformRenk: 'fsVurgu', sformKart: 'fsKart', slisteRenk: 'lsVurgu', slisteKart: 'lsKart',
+    aformRenk: 'faVurgu', aformKart: 'faKart', alisteRenk: 'laVurgu', alisteKart: 'laKart'
+  };
+  var KUTU_VAR = {
+    ozetRenk: '--c-ozet', ozetKart: '--kart-ozet', excelRenk: '--c-excel', excelKart: '--kart-excel',
+    sformRenk: '--c-sform', sformKart: '--kart-sform', slisteRenk: '--c-sliste', slisteKart: '--kart-sliste',
+    aformRenk: '--c-aform', aformKart: '--kart-aform', alisteRenk: '--c-aliste', alisteKart: '--kart-aliste'
+  };
+  var KUTU = JSON.parse(JSON.stringify(KUTU_VARSAYILAN));
+  function kutuBas() {
+    Object.keys(KUTU_ID).forEach(function (k) {
+      $(KUTU_ID[k]).value = KUTU[k];
+      document.documentElement.style.setProperty(KUTU_VAR[k], KUTU[k]);
+    });
+  }
+  function kutuUygula() {
+    Object.keys(KUTU_ID).forEach(function (k) { KUTU[k] = $(KUTU_ID[k]).value; });
+    kutuBas();
+    try { localStorage.setItem('yakitKutular', JSON.stringify(KUTU)); } catch (x) {}
+  }
+  function kutuSifirla() {
+    KUTU = JSON.parse(JSON.stringify(KUTU_VARSAYILAN)); kutuBas();
+    try { localStorage.removeItem('yakitKutular'); } catch (x) {}
+  }
+  try { var kk = JSON.parse(localStorage.getItem('yakitKutular') || 'null'); if (kk) Object.keys(kk).forEach(function (k) { if (k in KUTU) KUTU[k] = kk[k]; }); } catch (x) {}
+  kutuBas();
+
+  /* ---- kayıtlar ---- */
+  function kayitYukle() {
+    cagir('kayitListe', [T, $('kPlaka').value], function (r) {
+      KAYITLAR = r;
+      $('kTablo').innerHTML = '<tr><th>Tarih</th><th>Plaka</th><th>Şoför</th><th>KM</th><th>Litre</th><th>TL</th><th>L/100 km</th><th>İstasyon</th><th>Fiş</th><th></th></tr>' +
+        (r.length ? r.map(function (k, i) {
+          return '<tr><td>' + e(k.tarih) + '</td><td>' + e(k.plaka) + '</td><td>' + e(k.sofor) + '</td><td>' + e(k.km) + '</td><td>' + e(k.litre) +
+            '</td><td>' + e(k.tutar) + '</td><td><b>' + (k.tuketim == null ? '-' : say(k.tuketim, 2)) + '</b></td><td>' + e(k.istasyon) + '</td><td>' + (/^https:\/\/drive\.google\.com\//.test(k.fis || '') ? '<a href="' + e(k.fis) + '" target="_blank" rel="noopener">📷</a>' : '') + '</td><td><button class="kucuk kirmizi" onclick="kayitSil(' + i + ')">Sil</button></td></tr>';
+        }).join('') : '<tr><td colspan="10" class="yok">Kayıt yok.</td></tr>');
+    });
+  }
+  function kayitSil(i) {
+    var k = KAYITLAR[i];
+    if (!confirm(k.plaka + ' / ' + k.tarih + ' / ' + k.km + ' km kaydı silinsin mi?')) return;
+    cagir('kayitSil', [T, k.satir, k.zaman], function () { bildir('Kayıt silindi.', true); kayitYukle(); });
+  }
+  // Servis çalışanı: uygulama internet yokken de açılsın
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); });
+  }
+</script>
+</body>
+</html>
