@@ -48,6 +48,8 @@
   .sekmeler button[data-t=sofor].aktif { background: var(--c-sofor); color: #fff; }
   .sekmeler button[data-t=arac].aktif { background: var(--c-arac); color: #fff; }
   .sekmeler button[data-t=kayit].aktif { background: var(--c-kayit); color: #fff; }
+  .sekmeler button#btnAyar:hover, .sekmeler button#btnAyar.acik { background: #6d28d9; color: #fff; }
+  button.cikisBtn, button.cikisBtn:hover { background: #d93025; color: #fff; font-weight: 700; }
   table { width: 100%; border-collapse: collapse; font-size: 14px; } .tablo { overflow-x: auto; }
   th, td { text-align: left; padding: 7px 6px; border-bottom: 1px solid #e4e7eb; white-space: nowrap; }
   .satir { display: flex; gap: 12px; flex-wrap: wrap; } .satir > div { flex: 1; min-width: 150px; }
@@ -78,13 +80,13 @@
   <div class="ust"><div style="display:flex;align-items:center;gap:12px">
       <div class="marka kucuk" style="display:none"><img class="markaLogo" alt="" style="display:none"><span class="markaAd"></span></div>
       <b>Yönetici Paneli</b>
-    </div><button class="gri kucuk" onclick="cikis()">Çıkış</button></div>
+    </div><button class="gri kucuk cikisBtn" onclick="cikis()">Çıkış</button></div>
   <div class="sekmeler" id="sekmeler">
     <button data-t="rapor" class="aktif">Raporlar</button>
     <button data-t="sofor">Şoförler</button>
     <button data-t="arac">Araçlar</button>
     <button data-t="kayit">Kayıtlar</button>
-    <button onclick="renkPanel()">⚙️ Ayarlar</button>
+    <button id="btnAyar" onclick="renkPanel()">⚙️ Ayarlar</button>
   </div>
   <div class="kart gizli" id="renkKart" style="border-top-color:#9aa5b1">
     <h2 style="color:#1f2933">E-posta bildirimi</h2>
@@ -360,7 +362,7 @@
   $('sekmeler').addEventListener('click', function (ev) {
     var t = ev.target.getAttribute('data-t'); if (!t) return;
     ['rapor', 'sofor', 'arac', 'kayit'].forEach(function (x) { $('t-' + x).className = x === t ? '' : 'gizli'; });
-    Array.prototype.forEach.call($('sekmeler').children, function (b) { b.className = b.getAttribute('data-t') === t ? 'aktif' : ''; });
+    Array.prototype.forEach.call($('sekmeler').children, function (b) { if (b.id === 'btnAyar') return; b.className = b.getAttribute('data-t') === t ? 'aktif' : ''; });
     if (t === 'kayit') kayitYukle();
   });
 
@@ -466,7 +468,7 @@
   var RENK_VARSAYILAN = { rapor: '#1a73e8', sofor: '#188038', arac: '#e8710a', kayit: '#9334e6' };
   var RENK_ID = { rapor: 'cRapor', sofor: 'cSofor', arac: 'cArac', kayit: 'cKayit' };
   var RENKLER = JSON.parse(JSON.stringify(RENK_VARSAYILAN));
-  function renkPanel() { $('renkKart').className = $('renkKart').className === 'kart' ? 'kart gizli' : 'kart'; }
+  function renkPanel() { var ac = $('renkKart').className !== 'kart'; $('renkKart').className = ac ? 'kart' : 'kart gizli'; $('btnAyar').className = ac ? 'acik' : ''; }
   function renkBas() {
     Object.keys(RENK_ID).forEach(function (k) {
       $(RENK_ID[k]).value = RENKLER[k];
