@@ -438,11 +438,19 @@
     e.preventDefault(); KURMA_ISTEGI = e; kurDugmeleri(true);
   });
   window.addEventListener('appinstalled', function () { KURMA_ISTEGI = null; kurDugmeleri(false); kurulumKapat(); });
+  var KUR_YARDIM = 'Otomatik yükleme şu an kullanılamıyor. Elle yükleyin:\n\nAndroid (Chrome): sağ üstteki ⋮ menüsü > "Uygulamayı yükle" veya "Ana ekrana ekle".\niPhone (Safari): Paylaş düğmesi > "Ana Ekrana Ekle".\n\nWhatsApp, Instagram gibi uygulamaların içinden açtıysanız bağlantıyı önce Chrome\'da açın.';
   function uygulamaKur() {
-    if (!KURMA_ISTEGI) return;
-    KURMA_ISTEGI.prompt();
-    KURMA_ISTEGI.userChoice.then(function () { KURMA_ISTEGI = null; kurDugmeleri(false); kurulumKapat(); });
+    if (!KURMA_ISTEGI) { alert(KUR_YARDIM); return; }
+    var ist = KURMA_ISTEGI;
+    try { ist.prompt(); } catch (e) { KURMA_ISTEGI = null; alert(KUR_YARDIM); return; }
+    ist.userChoice.then(function (c) {
+      KURMA_ISTEGI = null;
+      if (c && c.outcome === 'accepted') { kurDugmeleri(false); kurulumKapat(); alert('Yükleniyor. 10-30 saniye içinde ana ekranda YAKIT TAKİP simgesi görünür.'); }
+      else alert('Yükleme tamamlanmadı. Şimdi şunu deneyin:\n\n' + KUR_YARDIM);
+    }, function () { KURMA_ISTEGI = null; alert(KUR_YARDIM); });
   }
+  // Düğme hep görünsün (uygulama olarak açılmadıysa); otomatik yükleme yoksa elle yükleme yönergesi çıkar
+  try { if (!window.matchMedia('(display-mode: standalone)').matches) kurDugmeleri(true); } catch (e) { kurDugmeleri(true); }
 
   // Servis çalışanı: uygulama internet yokken de açılsın
   if ('serviceWorker' in navigator) {
