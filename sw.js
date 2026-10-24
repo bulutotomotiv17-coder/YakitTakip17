@@ -2,7 +2,7 @@
  * Servis çalışanı: uygulama dosyalarını telefona kaydeder, böylece internet yokken de açılır.
  * Dosyaları güncellerseniz SURUM değerini bir artırın (yakit-v2, yakit-v3...).
  */
-var SURUM = 'yakit-v6';
+var SURUM = 'yakit-v7';
 var DOSYALAR = ['./', 'index.html', 'yonetici.html', 'api.js', 'config.js',
   'manifest.webmanifest', 'yonetici.webmanifest', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png'];
 
